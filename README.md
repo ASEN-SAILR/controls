@@ -4,3 +4,7 @@
 2. Clone this repo where ever you want on your computer
 3. Open controls.ino with ardunio
 4. You should be able to compile. Let Luke know if you cannot. 
+
+
+Below is the current flow chart. 
+![image](images/controls_code_flowchart.png)
