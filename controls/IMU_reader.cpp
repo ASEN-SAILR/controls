@@ -8,6 +8,9 @@ IMU_reader::IMU_reader() {
 }
 
 float* IMU_reader::read_IMU(int time_step) {
+  // Initialize Return Value
+  float imu_state[15] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};  
+
   // Get a new normalized sensor event
   sensors_event_t accel;
   sensors_event_t gyro;
@@ -19,6 +22,7 @@ float* IMU_reader::read_IMU(int time_step) {
   // Serial.println(" deg C");
 
   /* Display the results (acceleration is measured in m/s^2) */
+  /*
   Serial.print("\t\tAccel X: ");
   Serial.print(accel.acceleration.x);
   Serial.print(" \tY: ");
@@ -26,8 +30,10 @@ float* IMU_reader::read_IMU(int time_step) {
   Serial.print(" \tZ: ");
   Serial.print(accel.acceleration.z);
   Serial.println(" m/s^2 ");
+  */
 
   /* Display the results (rotation is measured in rad/s) */
+  /*
   Serial.print("\t\tGyro X: ");
   Serial.print(gyro.gyro.x);
   Serial.print(" \tY: ");
@@ -36,6 +42,7 @@ float* IMU_reader::read_IMU(int time_step) {
   Serial.print(gyro.gyro.z);
   Serial.println(" radians/s ");
   Serial.println();
+  */
 
   // TODO: Add Sensor Zeroing at Rest
 
@@ -44,13 +51,16 @@ float* IMU_reader::read_IMU(int time_step) {
   if (data_collected > 0) {
     // L
     l_imu += integrate(dl_imu,gyro.gyro.x,time_step);
-    dl_imu = gyro.gyro.x;
+    imu_state[9] = l_imu;
+    dl_imu = imu_state[12] = gyro.gyro.x;
     // M
     m_imu += integrate(dm_imu,gyro.gyro.y,time_step);
-    dm_imu = gyro.gyro.y;
+    imu_state[10] = m_imu;
+    dm_imu = imu_state[13] = gyro.gyro.y;
     // N
     n_imu += integrate(dn_imu,gyro.gyro.z,time_step);
-    dn_imu = gyro.gyro.z;    
+    imu_state[11] = n_imu;
+    dn_imu = imu_state[14] = gyro.gyro.z;    
   }
   else {
     dl_imu = gyro.gyro.x;
@@ -63,13 +73,13 @@ float* IMU_reader::read_IMU(int time_step) {
   if (data_collected > 0) {
     // dx
     dx_imu += integrate(ddx_imu,accel.acceleration.x,time_step);
-    ddx_imu = accel.acceleration.x;    
+    ddx_imu = imu_state[6] = accel.acceleration.x;    
     // dy
     dy_imu += integrate(ddy_imu,accel.acceleration.y,time_step);
-    ddy_imu = accel.acceleration.y;
+    ddy_imu = imu_state[7] = accel.acceleration.y;
     // dz
     dz_imu += integrate(ddz_imu,accel.acceleration.z,time_step);
-    ddz_imu = accel.acceleration.z;
+    ddz_imu = imu_state[8] = accel.acceleration.z;
   }
   else {
     ddx_imu = accel.acceleration.x;
@@ -81,13 +91,16 @@ float* IMU_reader::read_IMU(int time_step) {
   if (data_collected > 1) {
     // x
     x_imu += integrate(dx_imu_2,dx_imu,time_step);
-    dx_imu_2 = dx_imu;
+    imu_state[0] = x_imu;
+    dx_imu_2 = imu_state[3] = dx_imu;
     // y
     y_imu += integrate(dy_imu_2,dy_imu,time_step);
-    dy_imu_2 = dy_imu;
+    imu_state[1] = y_imu;
+    dy_imu_2 = imu_state[4] = dy_imu;
     // z
     z_imu += integrate(dz_imu_2,dz_imu,time_step);
-    dz_imu_2 = dz_imu;
+    imu_state[2] = z_imu;
+    dz_imu_2 = imu_state[5] = dz_imu;
   }
   else if (data_collected > 0){
     dx_imu_2 = dx_imu;
@@ -95,6 +108,7 @@ float* IMU_reader::read_IMU(int time_step) {
     dz_imu_2 = dz_imu;
     data_collected += 1;
   }
+  return imu_state;
 }
 
 float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
@@ -112,9 +126,11 @@ float* Magnetometer_reader::read_Magnetometer() {
   float norm = 1.0;  
   lis3mdl.read();      // get X Y and Z data at once
   // Then print out the raw data
+  /*
   Serial.print("\nX:  "); Serial.print(lis3mdl.x); 
   Serial.print("  \tY:  "); Serial.print(lis3mdl.y); 
   Serial.print("  \tZ:  "); Serial.println(lis3mdl.z);
+  */
 
   // Normalize then return vector
   norm = sqrt(lis3mdl.x^2 + lis3mdl.y^2 + lis3mdl.z^2);
