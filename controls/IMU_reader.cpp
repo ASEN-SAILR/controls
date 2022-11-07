@@ -1,7 +1,10 @@
 #include"IMU_reader.h"
 
+// Create Sensor Objects
 Adafruit_LIS3MDL lis3mdl;
 Adafruit_LSM6DS3TRC lsm6ds3trc;
+
+/*_____________________________________________________________________________________*/
 
 // Constructor
 IMU_reader::IMU_reader() {}
@@ -57,7 +60,7 @@ float* IMU_reader::read_IMU(int time_step) {
     dz_imu += integrate(ddz_imu,accel.acceleration.z,time_step);
     ddz_imu = imu_state[8] = accel.acceleration.z;
   }
-  else {
+  else { // Collect Initial Data on Startup
     ddx_imu = accel.acceleration.x;
     ddy_imu = accel.acceleration.y;
     ddz_imu = accel.acceleration.z;
@@ -78,7 +81,7 @@ float* IMU_reader::read_IMU(int time_step) {
     imu_state[2] = z_imu;
     dz_imu_2 = imu_state[5] = dz_imu;
   }
-  else if (data_collected > 0){
+  else if (data_collected > 0){ // Collect Initial Velocity Data
     dx_imu_2 = dx_imu;
     dy_imu_2 = dy_imu;
     dz_imu_2 = dz_imu;
@@ -92,7 +95,7 @@ float* IMU_reader::read_IMU(int time_step) {
 }
 
 /* For use in integrating IMU
-  input: two values, time step
+  input: two values, integer time step (ms)
   output: numeric integration between two points
   Utilizes trapezoidal rule
 */
@@ -101,6 +104,19 @@ float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
   val  = 0.5 * (x_a+x_b) * t_delta;
   return val;
 }
+
+/* More accurate integration utilizing Simpson's Rule
+  input: three floats, x_b being intermediate value, integer time step (ms)
+  output: numeric integration between three points
+  Requires three inputs, increases memory usage
+*/
+float IMU_reader::integrate_simp(float x_a, float x_b, float x_c, int t_delta){
+  float val;
+  val = t_delta/3 * (x_a + 4*x_b + x_c);
+  return val;
+}
+
+/*_____________________________________________________________________________________*/
 
 // Constructor
 Magnetometer_reader::Magnetometer_reader() {}
@@ -123,6 +139,8 @@ float* Magnetometer_reader::read_Magnetometer() {
 
   return north_vec;
 }
+
+/*_____________________________________________________________________________________*/
 
 // Constructor
 init_Magnetometer::init_Magnetometer() {}
@@ -194,6 +212,8 @@ void init_Magnetometer::startup() {
                           false, // don't latch
                           true); // enabled!
 }
+
+/*_____________________________________________________________________________________*/
 
 // Constructor
 init_IMU::init_IMU() {}

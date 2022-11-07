@@ -53,6 +53,8 @@ class IMU_reader {
 
     // Function to run numeric integration utilizing trapezoidal rule
     float integrate(float,float,int);
+
+    float integrate_simp(float,float,float,int);
 };
 
 class Magnetometer_reader {
