@@ -3,46 +3,22 @@
 Adafruit_LIS3MDL lis3mdl;
 Adafruit_LSM6DS3TRC lsm6ds3trc;
 
-IMU_reader::IMU_reader() {
+// Constructor
+IMU_reader::IMU_reader() {}
 
-}
-
+/* Read in IMU values, and respective integrations
+  input: time_step between arduino calls
+  output: state vector in form [x,y,z,dx,dy,dz,ddx,ddy,ddz,l,m,n,dl,dm,dn]
+*/
 float* IMU_reader::read_IMU(int time_step) {
   // Initialize Return Value
-  float imu_state[15] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};  
+  float imu_state[15];  
 
   // Get a new normalized sensor event
   sensors_event_t accel;
   sensors_event_t gyro;
   sensors_event_t temp;
   lsm6ds3trc.getEvent(&accel, &gyro, &temp);
-
-  // Serial.print("\t\tTemperature ");
-  // Serial.print(temp.temperature);
-  // Serial.println(" deg C");
-
-  /* Display the results (acceleration is measured in m/s^2) */
-  /*
-  Serial.print("\t\tAccel X: ");
-  Serial.print(accel.acceleration.x);
-  Serial.print(" \tY: ");
-  Serial.print(accel.acceleration.y);
-  Serial.print(" \tZ: ");
-  Serial.print(accel.acceleration.z);
-  Serial.println(" m/s^2 ");
-  */
-
-  /* Display the results (rotation is measured in rad/s) */
-  /*
-  Serial.print("\t\tGyro X: ");
-  Serial.print(gyro.gyro.x);
-  Serial.print(" \tY: ");
-  Serial.print(gyro.gyro.y);
-  Serial.print(" \tZ: ");
-  Serial.print(gyro.gyro.z);
-  Serial.println(" radians/s ");
-  Serial.println();
-  */
 
   // TODO: Add Sensor Zeroing at Rest
 
@@ -108,29 +84,36 @@ float* IMU_reader::read_IMU(int time_step) {
     dz_imu_2 = dz_imu;
     data_collected += 1;
   }
-  return imu_state;
+
+  if (data_collected > 1){
+    return imu_state;
+  }
+  return 0;
 }
 
+/* For use in integrating IMU
+  input: two values, time step
+  output: numeric integration between two points
+  Utilizes trapezoidal rule
+*/
 float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
   float val;  
   val  = 0.5 * (x_a+x_b) * t_delta;
   return val;
 }
 
-Magnetometer_reader::Magnetometer_reader() {
+// Constructor
+Magnetometer_reader::Magnetometer_reader() {}
 
-}
-
+/* Read in Magnetometer
+  input: void
+  return: [float,float,float] == [x,y,z] of magnetic field
+  Implied that return value points north
+*/
 float* Magnetometer_reader::read_Magnetometer() {
-  float north_vec[3] = {0.0,0.0,0.0};
-  float norm = 1.0;  
+  float north_vec[3];  // Return value (to be assigned)
+  float norm;          // For normalizing the vector
   lis3mdl.read();      // get X Y and Z data at once
-  // Then print out the raw data
-  /*
-  Serial.print("\nX:  "); Serial.print(lis3mdl.x); 
-  Serial.print("  \tY:  "); Serial.print(lis3mdl.y); 
-  Serial.print("  \tZ:  "); Serial.println(lis3mdl.z);
-  */
 
   // Normalize then return vector
   norm = sqrt(lis3mdl.x^2 + lis3mdl.y^2 + lis3mdl.z^2);
@@ -139,21 +122,12 @@ float* Magnetometer_reader::read_Magnetometer() {
   north_vec[2] = lis3mdl.z/norm;
 
   return north_vec;
-
-  /* Or....get a new sensor event, normalized to uTesla */
-  // sensors_event_t event; 
-  // lis3mdl.getEvent(&event);
-  /* Display the results (magnetic field is measured in uTesla) */
-  // Serial.print("\tX: "); Serial.print(event.magnetic.x);
-  // Serial.print(" \tY: "); Serial.print(event.magnetic.y); 
-  // Serial.print(" \tZ: "); Serial.print(event.magnetic.z); 
-  // Serial.println(" uTesla ");
 }
 
-init_Magnetometer::init_Magnetometer() {
+// Constructor
+init_Magnetometer::init_Magnetometer() {}
 
-}
-
+// Initialize Magnetometer (Run on Arduino Startup)
 void init_Magnetometer::startup() {
   Serial.begin(115200);
   while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
@@ -221,10 +195,10 @@ void init_Magnetometer::startup() {
                           true); // enabled!
 }
 
-init_IMU::init_IMU() {
+// Constructor
+init_IMU::init_IMU() {}
 
-}
-
+// Initialize IMU (run on arduino startup)
 void init_IMU::startup() {
   Serial.begin(115200);
   while (!Serial)

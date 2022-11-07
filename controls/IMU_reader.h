@@ -23,7 +23,7 @@
 class IMU_reader {
   public:
     // Construcor
-    IMU_reader();    
+    IMU_reader(void);    
 
     float* read_IMU(int);
 
@@ -57,9 +57,9 @@ class IMU_reader {
 
 class Magnetometer_reader {
   public:
-    Magnetometer_reader();
+    Magnetometer_reader(void);
 
-    float* read_Magnetometer();
+    float* read_Magnetometer(void);
   private:
 
 };
@@ -68,18 +68,18 @@ class Magnetometer_reader {
 class init_Magnetometer {
   public:
     // Constructor
-    init_Magnetometer();
+    init_Magnetometer(void);
 
   private:
-    void startup();
+    void startup(void);
 };
 
 // Class to initialize IMU
 class init_IMU {
   public:
     // Constructor
-    init_IMU();
+    init_IMU(void);
 
   private:
-    void startup();
+    void startup(void);
 };
