@@ -10,11 +10,8 @@ int timestep = 100;  //[ms]
 
 void setup(void) {
   // Initialize IMU and Magnetometer
-  init_IMU IMU_initializer;
-  init_Magnetometer Mag_initializer;
-
-  IMU_initializer.init_IMU();
-  Mag_initializer.init_Magnetometer();
+  IMU.startup();
+  Magnetometer.startup();
 }
 
 void loop(void) {

@@ -25,7 +25,11 @@ class IMU_reader {
     // Construcor
     IMU_reader(void);    
 
+    // Read IMU (Called Every Timestep)
     float* read_IMU(int);
+
+    // Initialize IMU (Run on Arduino Startup)
+    void startup(void);
 
   private: 
     // Variables for Data Collection
@@ -59,29 +63,15 @@ class IMU_reader {
 
 class Magnetometer_reader {
   public:
+    // Constructor
     Magnetometer_reader(void);
 
+    // Read Magnetometer (Called Every Timestep)
     float* read_Magnetometer(void);
-  private:
 
-};
-
-// Class to initialize Magnetometer
-class init_Magnetometer {
-  public:
-    // Constructor
-    init_Magnetometer(void);
-
-  private:
+    // Initialize Magnetometer (Call on Arduino Startup)
     void startup(void);
-};
-
-// Class to initialize IMU
-class init_IMU {
-  public:
-    // Constructor
-    init_IMU(void);
-
   private:
-    void startup(void);
+
 };
+

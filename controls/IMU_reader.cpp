@@ -150,11 +150,8 @@ float* Magnetometer_reader::read_Magnetometer() {
 
 /*_____________________________________________________________________________________*/
 
-// Constructor
-init_Magnetometer::init_Magnetometer() {}
-
 // Initialize Magnetometer (Run on Arduino Startup)
-void init_Magnetometer::startup() {
+void Magnetometer_reader::startup() {
   Serial.begin(115200);
   while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
 
@@ -223,11 +220,8 @@ void init_Magnetometer::startup() {
 
 /*_____________________________________________________________________________________*/
 
-// Constructor
-init_IMU::init_IMU() {}
-
 // Initialize IMU (run on arduino startup)
-void init_IMU::startup() {
+void IMU_reader::startup() {
   Serial.begin(115200);
   while (!Serial)
     delay(10); // will pause Zero, Leonardo, etc until serial console opens
@@ -245,7 +239,9 @@ void init_IMU::startup() {
 
   Serial.println("LSM6DS3TR-C Found!");
 
-  // lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+  // Set Accelerometer Range to 2G
+  lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+  // Verify Settings in Serial
   Serial.print("Accelerometer range set to: ");
   switch (lsm6ds3trc.getAccelRange()) {
   case LSM6DS_ACCEL_RANGE_2_G:
@@ -262,7 +258,8 @@ void init_IMU::startup() {
     break;
   }
 
-  // lsm6ds3trc.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
+  /*
+  lsm6ds3trc.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
   Serial.print("Gyro range set to: ");
   switch (lsm6ds3trc.getGyroRange()) {
   case LSM6DS_GYRO_RANGE_125_DPS:
@@ -283,8 +280,11 @@ void init_IMU::startup() {
   case ISM330DHCX_GYRO_RANGE_4000_DPS:
     break; // unsupported range for the DS33
   }
+  */
 
-  // lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_12_5_HZ);
+  // Set Accelerometer Data Rate to 12.5 Hz  
+  lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_12_5_HZ);
+  // Verify Settings in Serial
   Serial.print("Accelerometer data rate set to: ");
   switch (lsm6ds3trc.getAccelDataRate()) {
   case LSM6DS_RATE_SHUTDOWN:
@@ -322,6 +322,7 @@ void init_IMU::startup() {
     break;
   }
 
+  /*
   // lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);
   Serial.print("Gyro data rate set to: ");
   switch (lsm6ds3trc.getGyroDataRate()) {
@@ -359,6 +360,7 @@ void init_IMU::startup() {
     Serial.println("6.66 KHz");
     break;
   }
+  */
 
   lsm6ds3trc.configInt1(false, false, true); // accelerometer DRDY on INT1
   lsm6ds3trc.configInt2(false, true, false); // gyro DRDY on INT2  
