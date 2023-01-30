@@ -100,8 +100,13 @@ float* IMU_reader::read_IMU(int time_step) {
   Utilizes trapezoidal rule
 */
 float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
+  // Return Value
   float val;  
-  val  = 0.5 * (x_a+x_b) * t_delta;
+  // Convert timestep to s
+  float t;
+  t = float(t_delta) / 1000;
+  // Calculate & Return  
+  val  = 0.5 * (x_a+x_b) * t;
   return val;
 }
 
@@ -110,11 +115,13 @@ float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
   output: numeric integration between three points
   Requires three inputs, increases memory usage
 */
+/*
 float IMU_reader::integrate_simp(float x_a, float x_b, float x_c, int t_delta){
   float val;
   val = t_delta/3 * (x_a + 4*x_b + x_c);
   return val;
 }
+*/
 
 /*_____________________________________________________________________________________*/
 
@@ -137,6 +144,7 @@ float* Magnetometer_reader::read_Magnetometer() {
   north_vec[1] = lis3mdl.y/norm;
   north_vec[2] = lis3mdl.z/norm;
 
+  // Return [x,y,z] of magnetometer readings
   return north_vec;
 }
 
