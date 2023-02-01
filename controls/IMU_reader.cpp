@@ -88,7 +88,7 @@ float* IMU_reader::read_IMU(int time_step) {
     data_collected += 1;
   }
 
-  if (data_collected > 1){
+  if (data_collected > 2){
     return imu_state;
   }
   return 0;
@@ -108,6 +108,24 @@ float IMU_reader::integrate(float x_a, float x_b, int t_delta) {
   // Calculate & Return  
   val  = 0.5 * (x_a+x_b) * t;
   return val;
+}
+
+/* Zeros values measured from IMU
+  Call this function between each control command
+*/
+void IMU_reader::reset() {
+  x_imu = 0;
+  y_imu = 0;
+  z_imu = 0;
+  dx_imu = 0;
+  dy_imu = 0;
+  dz_imu = 0;
+  dx_imu_2 = 0;
+  dy_imu_2 = 0;
+  dz_imu_2 = 0;
+  ddx_imu = 0;
+  ddy_imu = 0;
+  ddz_imu = 0;
 }
 
 /* More accurate integration utilizing Simpson's Rule
