@@ -48,9 +48,12 @@ void loop(void) {
     vec = IMU.read_IMU(dt);
 
     // Print values to terminal
-    Serial.print(vec[0]);
-    Serial.print(vec[1]);
-    Serial.print(vec[2]);
+    if(!vec[0]) // Conditional for return 0
+    {
+      Serial.print(vec[0]);
+      Serial.print(vec[1]);
+      Serial.print(vec[2]);
+    }
   }
   // Magnetometer Mode
   else
