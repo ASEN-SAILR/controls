@@ -7,10 +7,10 @@ if __name__ == '__main__':
     ser = serial.Serial('COM12', 115200, timeout=1)
     ser.reset_input_buffer()
     while True:
-        towrite = str(input("enter value to be writtent to teensy")).encode('utf-8')
+        towrite = str(input(r"enter value to be writtent to teensy\n")).encode('utf-8')
         print(f"Writing \"{towrite}\" to the teensy")
         ser.write(towrite)
-        time.sleep(0.5)
+        time.sleep(1)
 
         readdata = ser.read()
         print(f"The py read \"{readdata}\" from the teensy")
