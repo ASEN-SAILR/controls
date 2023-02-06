@@ -53,9 +53,18 @@ void loop(void) {
     // Print values to terminal
     if(!vec[0]) // Conditional for return 0
     {
-      Serial.print("IMU x location [m]: ");
-      Serial.print(vec[0]);
-      Serial.print("\n");
+      // Acceleration
+      Serial.print("\t\tAccel X: ");
+      Serial.print(vec[2], 4);
+      Serial.println(" \tm/s^2 ");
+      // Velocity
+      Serial.print("\t\tVeloc X: ");
+      Serial.print(vec[1], 4);
+      Serial.println("\tm/s ");
+      // Position
+      Serial.print("\t\tPosit X: ");
+      Serial.print(vec[0], 4);
+      Serial.print("\tm ");
     }
   }
   // Magnetometer Mode
@@ -65,11 +74,13 @@ void loop(void) {
     vec = Magnetometer.read_Magnetometer();
 
     // Print Data
-    Serial.print("Magnetometer [x,y,z] vector: [");
-    Serial.print(vec[0]);
-    Serial.print(vec[1]);
-    Serial.print(vec[2]);
-    Serial.print("]\n");
+    Serial.print(" \t\tMag X: ");
+    Serial.print(vec[0], 4);
+    Serial.print(" \tY: ");
+    Serial.print(vec[1], 4);
+    Serial.print(" \tZ: ");
+    Serial.print(vec[2], 4);
+    Serial.println(" \tuTesla ");
   }
 
   // Time delay
