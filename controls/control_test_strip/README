@@ -16,3 +16,8 @@ If we decide to use the other axis accelerometers or rate gyro, the original cod
 // TODO
 - Add testing for IMU value resets
 - Actually test it
+
+// 2/6
+- Testing procedure based on datasheet, not requirements
+- Update IMU test to output acceleration (no specs on position)
+- Update magnetometer test to output raw values (non-normalized vector)
