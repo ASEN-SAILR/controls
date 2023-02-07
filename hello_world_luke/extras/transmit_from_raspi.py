@@ -4,15 +4,19 @@ import random
 import time
 
 if __name__ == '__main__':
-    ser = serial.Serial('COM12', 115200, timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
     ser.reset_input_buffer()
     while True:
-        towrite = str(input(r"enter value to be writtent to teensy\n")).encode('utf-8')
-        print(f"Writing \"{towrite}\" to the teensy")
+        towrite = str(input(r"enter value to be writtent to teensy: ")).encode('utf-8')
+        print(f"Writing \"{towrite}\" to the teensy.")
         ser.write(towrite)
-        time.sleep(1)
+        
+        
+        for i in range(5):
+            time.sleep(1)
+            print(".")
 
-        readdata = ser.read()
+        readdata = ser.readline().decode('utf-8').rstrip()
         print(f"The py read \"{readdata}\" from the teensy")
 
         # if number != b'':
