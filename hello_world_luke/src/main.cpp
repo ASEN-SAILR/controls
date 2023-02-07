@@ -21,43 +21,58 @@ void setup() {
 
 void loop() {
   // char array to store data from pi
-  int data[16];
+  int command[16];
 
   while(true){
 
     if (Serial.available()){
-      int len = Serial.available();
+      int command_length = Serial.available();
 
       //read in bytes of data
-      for(int i=0; i<len; i++){
+      for(int i=0; i<command_length; i++){
 
-        data[i] = Serial.read();
-
-        //set led high and low
         digitalWrite(led_pin,HIGH);
-        delay(100);
+        command[i] = Serial.read();
         digitalWrite(led_pin,LOW);
-        delay(100);
       }
 
-      // indicate that the teensy is about to send bytes back with longer
-      //  LED pulses
-      for(int i=0; i<3; i++){
+      for(int i=0; i<command_length; i++){
         digitalWrite(led_pin,HIGH);
-        delay(500);
+        Serial.write(command[i]);
         digitalWrite(led_pin,LOW);
-        delay(500);
+      }
+      
+      // indicate that the teensy is recived a string
+      // (blink..blink..........blink..blink)
+      for(int j=0; j<2; j++){
+        for(int i=0; i<2; i++){
+          digitalWrite(led_pin,HIGH);
+          delay(100);
+          digitalWrite(led_pin,LOW);
+          delay(100);
+        }
+        delay(400);
       }
 
-      for(int i=0; i<len; i++){
-        Serial.write(data[i]);
+      int command_type = command[0];
 
-        //turn led on and off
-        digitalWrite(led_pin,HIGH);
-        delay(100);
-        digitalWrite(led_pin,LOW);
-        delay(100);
+      switch(command_type){
+        case int('r'):
+            blinkNTimes(1);
+          break;
+        
+        case int('t'):
+            blinkNTimes(2);
+          break;
+
+        case int('s'):
+            blinkNTimes(3);
+          break;
+        
+        default:
+          break;
       }
+
     }
   } 
 }
