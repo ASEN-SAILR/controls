@@ -45,7 +45,7 @@ void loop(void) {
   startTime = millis();
 
   // IMU Mode
-  if(mode)
+  if(!mode)
   {
     // Read in IMU position data
     vec = IMU.read_IMU(dt);
