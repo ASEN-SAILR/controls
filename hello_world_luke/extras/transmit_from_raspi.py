@@ -8,11 +8,11 @@ if __name__ == '__main__':
     ser = serial.Serial('COM12',115200,timeout=1)
     ser.reset_input_buffer()
     while True:
-        towrite = (input(r"enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer")).encode('utf-8')
-        magnitude =int(input("enter magnitde for command"))
+        towrite = (input("enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer")).encode('utf-8')
+        magnitude =int(input("enter magnitde for command\n"))
         print(f"Writing \"{towrite}\" to the teensy.") 
-        print("toWrite", toWrite)
-        print("ma
+        print("toWrite", towrite)
+        print("magnitude",magnitude)
         ser.write(towrite)
         
         
