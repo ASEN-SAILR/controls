@@ -7,8 +7,11 @@ if __name__ == '__main__':
     ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
     ser.reset_input_buffer()
     while True:
-        towrite = str(input(r"enter value to be writtent to teensy: ")).encode('utf-8')
-        print(f"Writing \"{towrite}\" to the teensy.")
+        towrite = (input(r"enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer")).encode('utf-8')
+        magnitude =int(input("enter magnitde for command"))
+        print(f"Writing \"{towrite}\" to the teensy.") 
+        print("toWrite", toWrite)
+        print("ma
         ser.write(towrite)
         
         
