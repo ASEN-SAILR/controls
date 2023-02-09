@@ -89,11 +89,20 @@ void loop() {
       // String message = sprintf("com: %c. mag: %f\n", command_type,magnitude);
       String message = "Will this send";
 
-      for(int i=0; i<message.length(); i++){
-        digitalWrite(led_pin,HIGH);
-        Serial.write(message[i]);
-        digitalWrite(led_pin,LOW);
-      }
+      char buff[32];
+      snprintf (buff, sizeof(buff), "%f", magnitude);
+
+
+      Serial.write("com: ");
+      Serial.write(command_type);
+      Serial.write(" mag: ");
+      Serial.write(int(magnitude));
+
+      // for(int i=0; i<message.length(); i++){
+      //   digitalWrite(led_pin,HIGH);
+      //   Serial.write(message[i]);
+      //   digitalWrite(led_pin,LOW);
+      // }
 
     }
   } 
