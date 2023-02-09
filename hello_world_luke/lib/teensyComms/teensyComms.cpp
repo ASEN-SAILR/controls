@@ -12,6 +12,8 @@ bool teensyComms::readCommand(char* command_type, float* magnitude){
     for(int i=0; i<mag_length; i++){
         magnitude_raw = magnitude_raw | Serial.read()<<i;
     }
+    Serial.print("read ");
+    Serial.println(magnitude_raw);
 
     *magnitude = float(magnitude_raw); 
 
