@@ -110,7 +110,7 @@ float* Magnetometer_reader::read_Magnetometer() {
   lis3mdl.read();      // get X Y and Z data at once
 
   // Normalize then return vector
-  norm = sqrt(lis3mdl.x^2 + lis3mdl.y^2 + lis3mdl.z^2);
+  norm = sqrt((lis3mdl.x^2) + (lis3mdl.y^2) + (lis3mdl.z^2));
   north_vec[0] = lis3mdl.x/norm;
   north_vec[1] = lis3mdl.y/norm;
   north_vec[2] = lis3mdl.z/norm;
