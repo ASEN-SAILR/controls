@@ -5,7 +5,8 @@ import time
 import struct
 
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+    # ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+    ser = serial.Serial('COM12',115200,timeout=1)
     ser.reset_input_buffer()
     while True:
         #towrite = (input("enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer\n")).encode('utf-8')
