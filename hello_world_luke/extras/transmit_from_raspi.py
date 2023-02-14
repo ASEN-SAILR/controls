@@ -5,18 +5,18 @@ import time
 import struct
 
 if __name__ == '__main__':
-    # ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
-    ser = serial.Serial('COM12',115200,timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+    # ser = serial.Serial('COM12',115200,timeout=1)
     ser.reset_input_buffer()
     while True:
-        #towrite = (input("enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer\n")).encode('utf-8')
+        mode = (input("enter command type to be writtent to teensy \nr: rotate \nt: translate \n s: stop \n m: magnetometer\n")).encode('utf-8')
         magnitude =float(input("enter magnitde for command\n"))
         #print(f"Writing \"{towrite}\" to the teensy.") 
-        #print("toWrite", towrite)
+        print("toWrite", mode)
         print("magnitude",magnitude)
-        #ser.write(towrite)
-        ser.write(b"\x01" + struct.pack("<f",magnitude))
-        
+        #ser.write(mode)
+        ser.write(mode + struct.pack("<f",magnitude))
+                
         
         for i in range(5):
             while ser.in_waiting > 0:
