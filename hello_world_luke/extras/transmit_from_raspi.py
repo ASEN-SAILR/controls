@@ -15,8 +15,8 @@ if __name__ == '__main__':
         print("toWrite", mode)
         print("magnitude",magnitude)
         #ser.write(mode)
-        ser.write(b"\x01" + mode + struct.pack("<f",magnitude))
-        
+        ser.write(mode + struct.pack("<f",magnitude))
+                
         
         for i in range(5):
             while ser.in_waiting > 0:
