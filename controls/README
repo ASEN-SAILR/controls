@@ -1,0 +1,26 @@
+Example Code for Classes and IMU/Magnetometer Included
+Instructions for using IMU/MAG class
+
+#include "imuMag.h" //in header
+IMU_MAG var;        //instantiate class in header
+
+in setup:
+___________________________________________________________________________
+var.startup();      //initializes breakout board, set performance modes
+var.reset();        //zeros values for position, velocity, acceleration, and sets acceleration offset (due to gravity)
+
+in loop
+___________________________________________________________________________
+var.update_status(timestep);  //updates position, velocity, and acceleration, integrating via timestep (seconds)
+
+position = var.read_pos();      //Read position
+velocity = var.read_vel();      //Read velocity
+acceleration = var.read_acc();  //Read acceleration
+
+mag_x = var.mag_x();  //Magnetometer x reading
+mag_y = var.mag_y();  //Magnetometer y reading
+mag_z = var.mag_z();  //Magnetometer z reading
+
+___________________________________________________________________________
+Notes:
+- update status every timestep before taking any readings
