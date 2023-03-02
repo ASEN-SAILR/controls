@@ -1,4 +1,5 @@
 #include "teensyComms.h"
+
 bool teensyComms::readCommand(char* command_type, float* magnitude){
     // buffer to store bytes from serial buffer
     char buffer[32];

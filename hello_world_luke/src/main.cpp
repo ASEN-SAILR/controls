@@ -39,7 +39,10 @@ void loop() {
 
 
       comms.readCommand(&command_type,&magnitude);
-
+      Serial.print("\n command type: ");
+      Serial.println(command_type);
+      Serial.print("\n magnitude: ");
+      Serial.println(magnitude);
 
       // //read in bytes of data
       // for(int i=0; i<command_length; i++){
@@ -87,16 +90,16 @@ void loop() {
       }
 
       // String message = sprintf("com: %c. mag: %f\n", command_type,magnitude);
-      String message = "Will this send";
+      // String message = "Will this send";
 
       char buff[32];
       snprintf (buff, sizeof(buff), "%f", magnitude);
 
 
-      Serial.write("com: ");
-      Serial.write(command_type);
-      Serial.write(" mag: ");
-      Serial.write(int(magnitude));
+      // Serial.write("com: ");
+      // Serial.write(command_type);
+      // Serial.write(" mag: ");
+      // Serial.write(int(magnitude));
 
       // for(int i=0; i<message.length(); i++){
       //   digitalWrite(led_pin,HIGH);
