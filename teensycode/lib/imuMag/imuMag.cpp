@@ -88,6 +88,9 @@ void IMU_MAG::reset(){
     x = 0;
     dx = 0;
     ddx = 0;
+    m_x = 0;
+    m_y = 0;
+    m_z = 0;
 
     // Update Offset
     // Get a new normalized sensor event
@@ -109,6 +112,7 @@ void IMU_MAG::update_status(float timestep){
     sensors_event_t accel;
     sensors_event_t gyro;
     sensors_event_t temp;
+    sensors_event_t event; 
     lsm6ds3trc.getEvent(&accel, &gyro, &temp);
 
     //Acceleration
@@ -123,7 +127,11 @@ void IMU_MAG::update_status(float timestep){
     x += 0.5 * timestep * (dx + dx_2);
 
     // Update Magnetometer
-    lis3mdl.read();
+    lis3mdl.getEvent(&event);
+
+    m_x = event.magnetic.x + 57.76;
+    m_y = event.magnetic.y - 47.16;
+    m_z = event.magnetic.z + 48.65;
 
     return; 
 }
@@ -144,13 +152,13 @@ float IMU_MAG::read_acc(){
 }
 
 float IMU_MAG::mag_x(){
-    return lis3mdl.x;
+    return m_x;
 }
 
 float IMU_MAG::mag_y(){
-    return lis3mdl.y;
+    return m_y;
 }
 
 float IMU_MAG::mag_z(){
-    return lis3mdl.z;
+    return m_z;
 }

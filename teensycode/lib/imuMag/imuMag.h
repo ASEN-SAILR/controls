@@ -12,7 +12,7 @@
 class IMU_MAG 
 {
   private:
-    float ddx, dx, x, ddx_offset;
+    float ddx, dx, x, ddx_offset, m_x, m_y, m_z;
     Adafruit_LSM6DS3TRC lsm6ds3trc;
     Adafruit_LIS3MDL lis3mdl;
 
