@@ -34,13 +34,10 @@ class IMU_MAG
 
     float read_acc(void);
 
-<<<<<<< HEAD
-=======
     float read_w(void);
 
     float read_dw(void);
 
->>>>>>> 8336baea0038a3a70e1b0b7177ec5e1cbd54f115
     float mag_x(void);
 
     float mag_y(void);
