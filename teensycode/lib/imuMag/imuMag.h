@@ -12,19 +12,13 @@
 class IMU_MAG 
 {
   private:
-<<<<<<< HEAD
     float ddx, dx, x, ddx_offset, m_x, m_y, m_z, dw, dw_2, w, dw_offset, mx_off, my_off, mz_off;
-    float mx_max = 67.76;
-    float mx_min = 47.76;
-    float my_max = -37.16;
-    float my_min = -57.16;
-    float mz_max = 58.65;
-    float mz_min = 38.65;
-=======
-
-    float ddx, dx, x, ddx_offset, m_x, m_y, m_z, dw, dw_2, w, dw_offset;
-
->>>>>>> b75efdb47ecc1e2f574ec0caa6e74779396ea0a1
+    float mx_max = -47.76;
+    float mx_min = -67.76;
+    float my_max = 57.16;
+    float my_min = 37.16;
+    float mz_max = -38.65;
+    float mz_min = -58.65;
     Adafruit_LSM6DS3TRC lsm6ds3trc;
     Adafruit_LIS3MDL lis3mdl;
 
