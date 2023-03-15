@@ -64,6 +64,7 @@ void IMU_MAG::startup(){
 
   Serial.println("LSM6DS3TR-C Found!");
 
+
   lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);  //2_G, 4_G, 8_G, 16_G
   Serial.print("LSM6DS3TRC Accelerometer range set");
 
@@ -74,6 +75,7 @@ void IMU_MAG::startup(){
   Serial.print("LSM6DS3TRC Accelerometer data rate set");
 
   lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);   //"
+
   Serial.print("LSM6DS3TRC Gyro data rate set");
 
   lsm6ds3trc.configInt1(false, false, true); // accelerometer DRDY on INT1

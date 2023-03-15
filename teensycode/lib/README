@@ -1,3 +1,15 @@
+Information from the author(s): 
+
+-This code is made to run on a Teensy 4.1 microcontroller :)
+
+-If you get any weird compilation errors, make sure that you only have 1 instance of the Adafruit libraries in lib/Adafruit installed on your machine 
+
+-
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+PlatformIO Information: 
 
 This directory is intended for project specific (private) libraries.
 PlatformIO will compile them to static libraries and link into executable file.

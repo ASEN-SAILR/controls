@@ -39,7 +39,7 @@ class PD_Controller{
     public: 
         //PD_Controller(void); //constructor
         void initController(ControllerSpecs *pd); //initialize controller
-        void updateController(ControllerSpecs *pd, float setpoint, float measurement, int mode); //update controller 
+        void updateController(ControllerSpecs *pd, float setpoint, float measurement, char mode); //update controller 
         struct ControllerSpecs* specs;
     
     private: 

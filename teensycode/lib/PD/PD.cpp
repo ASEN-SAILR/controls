@@ -72,23 +72,30 @@ int PD_Controller::leftRight(float current[], float desired[])
 
 //update the controller with a new measurement and calculate output according to control law
 //measurement will come from IMU/mag, and should be as simple as calling a function in caleb's code
-void PD_Controller::updateController(ControllerSpecs *pd, float setpoint, float measurement, int mode)
+void PD_Controller::updateController(ControllerSpecs *pd, float setpoint, float measurement, char mode)
 {
-    float Kp;
-    float Kd;
+    float Kp = 0.0f;
+    float Kd = 0.0f;
 
     //determine if rover is translating or rotation
-    if(mode == 0)
+    if(mode == 'r')
     {
         //rover is rotating. set respective gains
         Kp = pd->KpR;
         Kd = pd->KdR;
     }
-    else
+    else if(mode == 't')
     {
         //rover is translating
         Kp = pd->KpT;
         Kd = pd->KdT;
+    }
+    else if(mode == 's')
+    {
+        //rover has been commanded to stop
+        pd->outLeft = 0;
+        pd->outRight = 0;
+        return;
     };
 
     //calculate the error between the setpoint (desired state) and the measurement (current state)
@@ -113,6 +120,7 @@ void PD_Controller::updateController(ControllerSpecs *pd, float setpoint, float 
     //store current measurement and error for next call
     pd->prevError = error;
     pd->prevMeasurement = measurement;
+
 
 }
 
