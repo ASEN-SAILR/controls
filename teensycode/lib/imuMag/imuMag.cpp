@@ -64,7 +64,6 @@ void IMU_MAG::startup(){
 
   Serial.println("LSM6DS3TR-C Found!");
 
-
   lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);  //2_G, 4_G, 8_G, 16_G
   Serial.print("LSM6DS3TRC Accelerometer range set");
 
@@ -75,7 +74,6 @@ void IMU_MAG::startup(){
   Serial.print("LSM6DS3TRC Accelerometer data rate set");
 
   lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);   //"
-
   Serial.print("LSM6DS3TRC Gyro data rate set");
 
   lsm6ds3trc.configInt1(false, false, true); // accelerometer DRDY on INT1
@@ -151,10 +149,22 @@ void IMU_MAG::update_status(float timestep){
     // Update Magnetometer
     lis3mdl.getEvent(&event);
 
+    // Calibrate Magnetometer
+    mx_max = max(mx_max,event.magnetic.x);
+    mx_min = min(mx_min,event.magnetic.x);
+    my_max = max(my_max,event.magnetic.y);
+    my_min = min(my_min,event.magnetic.y);
+    mz_max = max(mz_max,event.magnetic.z);
+    mz_min = min(mz_min,event.magnetic.z);
+
+    mx_off = (mx_max + mx_min)/2;
+    my_off = (my_max + my_min)/2;
+    mz_off = (mz_max + mz_min)/2;
+
     // Include Offsets
-    m_x = event.magnetic.x + 57.76;
-    m_y = event.magnetic.y - 47.16;
-    m_z = event.magnetic.z + 48.65;
+    m_x = event.magnetic.x - mx_off;
+    m_y = event.magnetic.y - my_off;
+    m_z = event.magnetic.z - mz_off;
 
     return; 
 }
