@@ -22,10 +22,10 @@ void PD_Controller::initController(ControllerSpecs *pd)
     pd->maxVolts = 6.0f;
 
     //define sample time 
-    pd->T = 0.0f;
+    pd->T = 1.0f;
 
     //define time lowpass filter time constant 
-    pd->tau = 0.0f;
+    pd->tau = .25f;
 
     //define controller memory aspects
     pd->prevError = 0.0f;

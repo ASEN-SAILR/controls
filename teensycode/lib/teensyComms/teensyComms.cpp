@@ -9,10 +9,10 @@ bool teensyComms::readCommand(char* command_type, float* magnitude){
     int msg_len = Serial.available();
 
     // Get bytes from serial buffer and store in `buffer`
-    Serial.println("Reading in from Pi");
+    //Serial.println("Reading in from Pi");
     for(int i=0; i<msg_len; i++){
         buffer[i] = Serial.read();
-        Serial.println(buffer[i]);
+        //Serial.println(buffer[i]);
     }
 
     // The first byte that gets sent is like a 
@@ -23,6 +23,6 @@ bool teensyComms::readCommand(char* command_type, float* magnitude){
     // copy data from buffer and put into float* magnitude
     memcpy(magnitude, &buffer[1], 4);    // receive data
 
-    Serial.clear();
+    // Serial.clear();
     return true;
 }
