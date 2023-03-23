@@ -16,7 +16,7 @@ void IMU_MAG::startup(){
     while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
   }
 
-  Serial.println("Adafruit LIS3MDL test!");
+  Serial.println("Adafruit LIS3MDL Initializing");
   
   // Try to initialize!
   if (! lis3mdl.begin_I2C()) {          // hardware I2C mode, can pass in address & alt Wire
@@ -51,7 +51,7 @@ void IMU_MAG::startup(){
   LSM6D3STR
   */
 
-  Serial.println("Adafruit LSM6DS3TR-C test!");
+  Serial.println("Adafruit LSM6DS3TR-C Initializing");
 
   if (!lsm6ds3trc.begin_I2C()) {
     // if (!lsm6ds3trc.begin_SPI(LSM_CS)) {
@@ -64,16 +64,16 @@ void IMU_MAG::startup(){
 
   Serial.println("LSM6DS3TR-C Found!");
 
-  // lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);  //2_G, 4_G, 8_G, 16_G
+  lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);  //2_G, 4_G, 8_G, 16_G
   Serial.print("LSM6DS3TRC Accelerometer range set");
 
-  // lsm6ds3trc.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);    //125, 250, 500, 1000, 2000, 4000
+  lsm6ds3trc.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);    //125, 250, 500, 1000, 2000, 4000
   Serial.print("LSM6DS3TRC Gyro range set");
 
-  // lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_12_5_HZ);  //0, 12_5, 26, 52, 104, 208, 416, 833, 1_66K, 3_33K, 6_66K
+  lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_12_5_HZ);  //0, 12_5, 26, 52, 104, 208, 416, 833, 1_66K, 3_33K, 6_66K
   Serial.print("LSM6DS3TRC Accelerometer data rate set");
 
-  // lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);   //"
+  lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);   //"
   Serial.print("LSM6DS3TRC Gyro data rate set");
 
   lsm6ds3trc.configInt1(false, false, true); // accelerometer DRDY on INT1
@@ -88,6 +88,11 @@ void IMU_MAG::reset(){
     x = 0;
     dx = 0;
     ddx = 0;
+    m_x = 0;
+    m_y = 0;
+    m_z = 0;
+    w = 0;
+    dw = 0;
 
     // Update Offset
     // Get a new normalized sensor event
@@ -96,7 +101,18 @@ void IMU_MAG::reset(){
     sensors_event_t temp;
     lsm6ds3trc.getEvent(&accel, &gyro, &temp);
 
-    ddx_offset = accel.acceleration.x;
+    // Takes 100 ms to calibrate offset
+    // If too long, update delay
+    ddx_offset = 0;
+    dw_offset = 0;
+    for (int i=0;i<10;i++) {
+        ddx_offset += accel.acceleration.x;
+        dw_offset += gyro.gyro.z;
+        lsm6ds3trc.getEvent(&accel, &gyro, &temp);
+        delay(10);
+    }
+    ddx_offset /= 10;
+    dw_offset /= 10;
 
     return;
 }
@@ -109,11 +125,12 @@ void IMU_MAG::update_status(float timestep){
     sensors_event_t accel;
     sensors_event_t gyro;
     sensors_event_t temp;
+    sensors_event_t event; 
     lsm6ds3trc.getEvent(&accel, &gyro, &temp);
 
     //Acceleration
     ddx_2 = ddx;
-    ddx = accel.acceleration.x;
+    ddx = accel.acceleration.x - ddx_offset;
     
     //Velocity
     dx_2 = dx;
@@ -122,8 +139,32 @@ void IMU_MAG::update_status(float timestep){
     //Position
     x += 0.5 * timestep * (dx + dx_2);
 
+    //Rotational Velocity
+    dw_2 = dw;
+    dw = gyro.gyro.z - dw_offset;
+
+    //Rotation
+    w += 0.5 * timestep * (dw + dw_2);
+
     // Update Magnetometer
-    lis3mdl.read();
+    lis3mdl.getEvent(&event);
+
+    // Calibrate Magnetometer
+    mx_max = max(mx_max,event.magnetic.x);
+    mx_min = min(mx_min,event.magnetic.x);
+    my_max = max(my_max,event.magnetic.y);
+    my_min = min(my_min,event.magnetic.y);
+    mz_max = max(mz_max,event.magnetic.z);
+    mz_min = min(mz_min,event.magnetic.z);
+
+    mx_off = (mx_max + mx_min)/2;
+    my_off = (my_max + my_min)/2;
+    mz_off = (mz_max + mz_min)/2;
+
+    // Include Offsets
+    m_x = event.magnetic.x - mx_off;
+    m_y = event.magnetic.y - my_off;
+    m_z = event.magnetic.z - mz_off;
 
     return; 
 }
@@ -143,14 +184,22 @@ float IMU_MAG::read_acc(){
     return ddx;
 }
 
+float IMU_MAG::read_w(){
+    return w;
+}
+
+float IMU_MAG::read_dw(){
+    return dw;
+}
+
 float IMU_MAG::mag_x(){
-    return lis3mdl.x;
+    return m_x;
 }
 
 float IMU_MAG::mag_y(){
-    return lis3mdl.y;
+    return m_y;
 }
 
 float IMU_MAG::mag_z(){
-    return lis3mdl.z;
+    return m_z;
 }
