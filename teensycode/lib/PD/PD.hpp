@@ -37,10 +37,12 @@ struct ControllerSpecs{
 class PD_Controller{
 
     public: 
-        //PD_Controller(void); //constructor
+        PD_Controller(); //constructor
         void initController(ControllerSpecs *pd); //initialize controller
         void updateController(ControllerSpecs *pd, float setpoint, float measurement, char mode); //update controller 
         struct ControllerSpecs* specs;
+        float checkOutput2(float voltage);
+    
     
     private: 
         void checkOutput(ControllerSpecs *pd); //check to see if controller output is in acceptable voltage range

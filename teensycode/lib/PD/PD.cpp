@@ -7,6 +7,13 @@ using namespace std;
 #include <iostream>
 #include <cmath> 
 #include <PD.hpp>
+#include <Arduino.h>
+
+//constructor
+PD_Controller::PD_Controller(void)
+{
+    return;
+}
 
 //initialize controller 
 void PD_Controller::initController(ControllerSpecs *pd)
@@ -15,8 +22,11 @@ void PD_Controller::initController(ControllerSpecs *pd)
     pd->KpT = 0.0f;
     pd->KdT = 0.0f;
     pd->KpR = 0.0f;
-    pd->KdR = 0.0f;
+    pd->KdR = 0.15f;
 
+    Serial.print("Gains set \n");
+
+    
     //define min and max voltage 
     pd->minVolts = -6.0f;
     pd->maxVolts = 6.0f;
@@ -122,5 +132,22 @@ void PD_Controller::updateController(ControllerSpecs *pd, float setpoint, float 
     pd->prevMeasurement = measurement;
 
 
+}
+
+//check raw voltage output against maximum motor voltage
+float PD_Controller::checkOutput2(float voltage)
+{
+    if(voltage < -6.0)
+    {
+        voltage = -6.0;
+        return voltage;
+    }
+    else if(voltage > 6.0)
+    {
+        voltage = 6.0;
+        return voltage;
+    }
+
+    return voltage; 
 }
 
