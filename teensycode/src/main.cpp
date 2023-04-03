@@ -12,14 +12,13 @@ using namespace std;
 // put your setup code here, to run once:
 void setup() {
 
-
   //open serial communications
   Serial.begin(115200);
 
   //Serial.println("Teensy setup...");
 
   //create controller object
-  PD_Controller Controller;
+  PD_Controller Controller = PD_Controller();
 
   //instantiate imuMag object
   IMU_MAG imuMag; 
@@ -53,50 +52,97 @@ void setup() {
 // put your main code here, to run repeatedly:
 void loop() {
 
+ 
+  //define controller struct
+  struct
+  {
+    //controller gains
+    float KpT = 10; //proportional gain for translation
+    float KdT = .15; //derivative gain for translation
+    float KpR = 0; //proportional gain for rotation
+    float KdR = 0; //derivative gain for rotation
 
+    //output limits (min and max voltage)
+    float minVolts = -6; 
+    float maxVolts = 6; 
+
+    //sample time 
+    float T = .01; //[seconds]
+
+    //derivative low pass filter time constant 
+    float tau = .2; //[s^-1]
+
+    //controller memory
+    float prevError; //previous error measurement
+    float differentiator = 0; //required for derivative control
+    float prevMeasurement = 0; //previous measurement from IMU/mag
+
+    //controller outputs
+    float outLeft; //[V]
+    float outRight; //[V]
+  } Specs;
+
+  Serial.print("Struct created \n");
+  Serial.print(Specs.KdR);
 
   //create controller object
-  PD_Controller Controller;
+  PD_Controller Controller = PD_Controller(); 
 
   //declare/construc comms object
   teensyComms comms = teensyComms();
 
-
   //instantiate imuMag object
   IMU_MAG imuMag; 
+  imuMag.startup();
+  imuMag.reset();
 
   //declare variables for imuMag
-  int timestep = 1;
+  float currentTime;
+  float dt = 0;
+  float startTime;
+  int timestep;
   float position;
   float velocity;
   float acceleration;
   float magX;
   float magY;
-  float magZ;
-  float initial; 
-  float progress = 0.0f; 
-  //string converted;
-  //stringstream s;
+  float w;
 
-  //declare variables used for feedback control
+  //declare further variables used for feedback control
   float measurement = 0.0f;
   int pwmLeft;
   int pwmRight;
 
   //declare variables received from commands
-  float magnitude=-1;
-  char commandType='0';
+  float magnitude = 100;
+  char commandType = 't';
   
   //Serial.clear();
+  Serial.print("Waiting for command");
+  //wait to execute until first command is received
+  //while(!Serial.available());
 
-  //check for updated command from RASPI. update "mode"
-  //
-  //check for updated 
-  //Serial.print("Start of loop");
-  //if there is something in the serial buffer, read it
-  while(!Serial.available());
   while(true)
   {
+    //update timestep
+    currentTime = millis();
+    if(!dt)
+    {
+      dt = timestep;
+    }
+    else
+      dt = currentTime - startTime;
+    startTime = millis();
+    Specs.T = dt;
+
+    //check current state of rover against desired state. if within 5%, stop and wait for command
+    if(measurement >= .95*magnitude && measurement <= 1.05*magnitude)
+    {
+      commandType = 's';
+      imuMag.reset();
+    };
+
+    //if there is a new command, read it and overwrite current command 
     if(Serial.available())
     {
       //read command
@@ -105,43 +151,35 @@ void loop() {
       //reset imuMag state
       imuMag.reset();
 
-      //if rotation, set initial heading 
-      // if(commandType == 'r')
-      // {
-      //   magX = imuMag.mag_x();
-      //   magY = imuMag.mag_y();
-      //   magZ = imuMag.mag_z();    
-      //   initial = atan2(magY, magX) * (180/PI);
-      // };
-
-      //print command
-      //Serial.print("\n LATEST RECEIVED COMMAND: ");
-      //Serial.print("\n Command Type: ");
-      //Serial.println(commandType);
-      //Serial.print("\n Magnitude: ");
-      //Serial.println(magnitude);
+      //reset measurement and controller memory
+      measurement = 0;
+      Specs.prevError = 0;
+      Specs.prevMeasurement = 0;
     };
   
 
     //collect current measurement of state from IMU/MAG
     //
     //update current position, velocity, and acceleration with integration
-    imuMag.update_status(timestep);
+    imuMag.update_status(dt);
 
     //read position, velocity, and acceleration
     position = imuMag.read_pos();
     velocity = imuMag.read_vel();
     acceleration = imuMag.read_acc();
+    w = imuMag.read_w();
 
     //read magnetometer heading
     magX = imuMag.mag_x();
     magY = imuMag.mag_y();
-    magZ = imuMag.mag_z();
 
     //if current command is rotation, calculate current compass heading
     if(commandType == 'r')
     {
-      measurement = atan2(magY, magX) * (180/PI);
+      measurement = w;
+      Serial.print("Measurement: ");
+      Serial.print(w);
+      Serial.print("\n");
       //Serial.println("Rotation command received and recognized!");
     };
 
@@ -149,6 +187,9 @@ void loop() {
     if(commandType == 't')
     {
       measurement = position;
+      Serial.print("Measurement: ");
+      Serial.print(position);
+      Serial.print("\n");
       //Serial.println("Translation command received and recognized!");
     };
 
@@ -166,42 +207,66 @@ void loop() {
     {
       //code to send magnetometer azimuth to RasPi
       measurement = atan2(magY, magX) * (180/PI);
-      //Serial.println("Magnetometer command received and recognized!");
       Serial.print('m');
       Serial.println(measurement);
-      //Serial.println(69.1);
       commandType = 's';
-      // //write magnetometer reading to serial for raspi
-      // s << measurement;
-      // converted = s.str();
-      // for(int i = 0; i < converted.length(); i++)
-      // {
-      //   Serial.write(converted[i]);
-      // }
     };
     
-    continue;
+    //continue;
     //update controller to generate output 
-    Controller.updateController(Controller.specs, magnitude, measurement, commandType);
+    //Controller.updateController(Controller.specs, magnitude, measurement, commandType);
+    float Kp = 0;
+    float Kd = 0;
+    if(commandType == 'r')
+    {
+      Kp = Specs.KpR;
+      Kd = Specs.KdR;
+    }
+    else if(commandType == 't')
+    {
+      Kp = Specs.KpT;
+      Kd = Specs.KdT;
+    }
+    else if(commandType == 's')
+    {
+      Specs.outLeft = 0;
+      Specs.outRight = 0;
+    };
 
-    //check progress of motion
-    // if(commandType == 'r')
-    // {
-    //   //check progress of rotation
-    //   progress = progress + abs(abs(measurement)-abs(initial));
-    // }
-    // //check progress of translation
-    // if(commandType == 't')
-    // {
-    //   //
-    // }
+    //calculate error between current and desired states
+    float error = magnitude - measurement;
+
+    //proportional control
+    float proportional = Kp*error;
+
+    //derivative control aspect
+    Specs.differentiator = (2.0f * Kd * (measurement - Specs.prevMeasurement)
+                         + (2.0f * Specs.tau - Specs.T) * Specs.differentiator)
+                         / (2.0f * Specs.tau + Specs.T);
+
+    //compute output in voltage
+    Specs.outLeft = proportional + Specs.differentiator;
+    Specs.outRight = proportional + Specs.differentiator;
+
+    //check output 
+    Specs.outLeft = Controller.checkOutput2(Specs.outLeft);
+    Specs.outRight = Controller.checkOutput2(Specs.outRight);
+
+    //update controller memory
+    Specs.prevError = error;
+    Specs.prevMeasurement = measurement; 
+
+    Serial.print("Output: ");
+    Serial.print(Specs.outLeft);
+    Serial.print("\n");
+
     
     //convert voltage output to PWM duty cycle
-    pwmLeft = (Controller.specs->outLeft / 6) * 256;
+    pwmLeft = (Specs.outLeft / 6) * 256;
     pwmLeft = round(pwmLeft);
     pwmLeft = int(pwmLeft);
 
-    pwmRight = (Controller.specs->outRight / 6) * 256;
+    pwmRight = (Specs.outRight / 6) * 256;
     pwmRight = round(pwmRight);
     pwmRight = int(pwmRight);
 
@@ -231,13 +296,13 @@ void loop() {
 
       //send PWM signal
     }
-    else
-    {
-      //stop motors
-      analogWrite(0, 0);
-      analogWrite(6, 0);
-      Serial.println("ERROR: Unknown command type!");
-    }
+    // else
+    // {
+    //   //stop motors
+    //   analogWrite(0, 0);
+    //   analogWrite(6, 0);
+    //   Serial.println("ERROR: Unknown command type!");
+    // }
 
     //convert signals back to floats 
     pwmLeft = float(pwmLeft);
