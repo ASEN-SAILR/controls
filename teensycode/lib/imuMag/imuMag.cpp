@@ -134,28 +134,34 @@ void IMU_MAG::update_status(float timestep){
     
     //Velocity
     dx_2 = dx;
-    dx += 0.5 * timestep * (ddx + ddx_2);
+    if(abs(ddx) > 0.2){
+        dx += 0.5 * timestep * (ddx + ddx_2);
+    }
 
     //Position
-    x += 0.5 * timestep * (dx + dx_2);
+    if(abs(ddx) > 0.2){
+        x += 0.5 * timestep * (dx + dx_2);
+    }
 
     //Rotational Velocity
     dw_2 = dw;
     dw = gyro.gyro.z - dw_offset;
 
     //Rotation
-    w += 0.5 * timestep * (dw + dw_2);
+    if(abs(dw) > 0.15){
+        w += 0.5 * timestep * (dw + dw_2);
+    }
 
     // Update Magnetometer
     lis3mdl.getEvent(&event);
 
     // Calibrate Magnetometer
-    mx_max = max(mx_max,event.magnetic.x);
-    mx_min = min(mx_min,event.magnetic.x);
-    my_max = max(my_max,event.magnetic.y);
-    my_min = min(my_min,event.magnetic.y);
-    mz_max = max(mz_max,event.magnetic.z);
-    mz_min = min(mz_min,event.magnetic.z);
+    mx_max = max(mx_max,0.9*mx_max+0.1*event.magnetic.x);
+    mx_min = min(mx_min,0.9*mx_min+0.1*event.magnetic.x);
+    my_max = max(my_max,0.9*my_max+0.1*event.magnetic.y);
+    my_min = min(my_min,0.9*my_min+0.1*event.magnetic.y);
+    mz_max = max(mz_max,0.9*mz_max+0.1*event.magnetic.z);
+    mz_min = min(mz_min,0.9*mz_min+0.1*event.magnetic.z);
 
     mx_off = (mx_max + mx_min)/2;
     my_off = (my_max + my_min)/2;
