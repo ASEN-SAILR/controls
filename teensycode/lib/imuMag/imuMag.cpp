@@ -160,6 +160,9 @@ void IMU_MAG::update_status(double timestep){
     if(abs(dw) > 0.15){
         w += 0.5 * timestep * (dw + dw_2);
     }
+    else{
+        dw_offset = 0.5*dw_offset + 0.5*dw;
+    }
 
     // Update Magnetometer
     lis3mdl.getEvent(&event);
