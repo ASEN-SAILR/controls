@@ -19,6 +19,8 @@ class IMU_MAG
     float my_min = 37.16;
     float mz_max = -38.65;
     float mz_min = -58.65;
+
+    // Accelerometer and Magnetometer Objects
     Adafruit_LSM6DS3TRC lsm6ds3trc;
     Adafruit_LIS3MDL lis3mdl;
 
@@ -30,7 +32,7 @@ class IMU_MAG
 
     void reset(void);
 
-    void update_status(float);
+    void update_status(double);
 
     float read_pos(void);
 
