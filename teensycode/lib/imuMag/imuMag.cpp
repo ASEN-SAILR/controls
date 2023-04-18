@@ -17,7 +17,7 @@ void IMU_MAG::startup(){
   }
 
   //Serial.println("Adafruit LIS3MDL Initializing");
-  
+  delay(100);
   // Try to initialize!
   if (! lis3mdl.begin_I2C()) {          // hardware I2C mode, can pass in address & alt Wire
   //if (! lis3mdl.begin_SPI(LIS3MDL_CS)) {  // hardware SPI mode
@@ -28,7 +28,7 @@ void IMU_MAG::startup(){
   //Serial.println("LIS3MDL Found!");
 
 
-  lis3mdl.setPerformanceMode(LIS3MDL_MEDIUMMODE);   //LOWPOWERMODE, MEDIUMMODE, HIGHMODE, ULTRAHIGHMODE
+  lis3mdl.setPerformanceMode(LIS3MDL_ULTRAHIGHMODE);   //LOWPOWERMODE, MEDIUMMODE, HIGHMODE, ULTRAHIGHMODE
   //Serial.print("LIS3MDL Performance mode set");
 
   lis3mdl.setOperationMode(LIS3MDL_CONTINUOUSMODE);     //CONTINUOUSMODE, SINGLEMODE, POWERDOWNMODE
@@ -70,10 +70,10 @@ void IMU_MAG::startup(){
   lsm6ds3trc.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);    //125, 250, 500, 1000, 2000, 4000
   //Serial.print("LSM6DS3TRC Gyro range set");
 
-  lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_12_5_HZ);  //0, 12_5, 26, 52, 104, 208, 416, 833, 1_66K, 3_33K, 6_66K
+  lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_26_HZ);  //0, 12_5, 26, 52, 104, 208, 416, 833, 1_66K, 3_33K, 6_66K
   //Serial.print("LSM6DS3TRC Accelerometer data rate set");
 
-  lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_12_5_HZ);   //"
+  lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_26_HZ);   //"
   //Serial.print("LSM6DS3TRC Gyro data rate set");
 
   lsm6ds3trc.configInt1(false, false, true); // accelerometer DRDY on INT1
@@ -96,6 +96,8 @@ void IMU_MAG::reset(){
 
     // Update Offset
     // Get a new normalized sensor event
+
+    delay(100);
     sensors_event_t accel;
     sensors_event_t gyro;
     sensors_event_t temp;
@@ -105,14 +107,14 @@ void IMU_MAG::reset(){
     // If too long, update delay
     ddx_offset = 0;
     dw_offset = 0;
-    for (int i=0;i<10;i++) {
+    for (int i=0;i<100;i++) {
         ddx_offset += accel.acceleration.x;
         dw_offset += gyro.gyro.z;
         lsm6ds3trc.getEvent(&accel, &gyro, &temp);
         delay(10);
     }
-    ddx_offset /= 10;
-    dw_offset /= 10;
+    ddx_offset /= 100;
+    dw_offset /= 100;
 
     return;
 }
@@ -134,12 +136,13 @@ void IMU_MAG::update_status(float timestep){
     
     //Velocity
     dx_2 = dx;
-    if(abs(ddx) > 0.2){
+    if(abs(ddx) > 0.2 && abs(ddx) < 3){
         dx += 0.5 * timestep * (ddx + ddx_2);
+        dx = dx/abs(dx) * min(abs(dx),0.30);
     }
 
     //Position
-    if(abs(ddx) > 0.2){
+    if(abs(dx) > 0.0){
         x += 0.5 * timestep * (dx + dx_2);
     }
 
@@ -150,6 +153,9 @@ void IMU_MAG::update_status(float timestep){
     //Rotation
     if(abs(dw) > 0.15){
         w += 0.5 * timestep * (dw + dw_2);
+    }
+    else{
+        dw_offset = .5 * dw_offset + .5 * dw;
     }
 
     // Update Magnetometer

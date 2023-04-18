@@ -24,7 +24,7 @@ void PD_Controller::initController(ControllerSpecs *pd)
     pd->KpR = 0.0f;
     pd->KdR = 0.15f;
 
-    Serial.print("Gains set \n");
+    //Serial.print("Gains set \n");
 
     
     //define min and max voltage 
